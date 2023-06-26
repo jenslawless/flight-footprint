@@ -9,7 +9,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # fetch flight API info
-def fetch_flight(passengers, dep_airport, des_airport):
+def fetch_flight(current_user, passengers, dep_airport, des_airport):
     global session
     
     headers = dict([
@@ -35,7 +35,7 @@ def fetch_flight(passengers, dep_airport, des_airport):
     carbon_mt = new_flight['data']['attributes']['carbon_mt']
     distance_unit = new_flight['data']['attributes']['distance_unit']
     distance_value = new_flight['data']['attributes']['distance_value']
-    
+   
 
     # try:
     #     current_user = session.merge(current_user)
@@ -44,7 +44,7 @@ def fetch_flight(passengers, dep_airport, des_airport):
     #     pass
 
 
-    new_flight_entry = Flight(passengers=passengers, dep_airport=dep_airport, des_airport=des_airport, carbon_g=carbon_g,
+    new_flight_entry = Flight(user_id=current_user.id, passengers=passengers, dep_airport=dep_airport, des_airport=des_airport, carbon_g=carbon_g,
                           carbon_lb=carbon_lb, carbon_kg=carbon_kg, carbon_mt=carbon_mt, distance_unit=distance_unit,
                           distance_value=distance_value)
     

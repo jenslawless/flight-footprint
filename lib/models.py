@@ -33,9 +33,9 @@ class Flight(Base):
     carbon_mt = Column(Integer)
     distance_unit = Column(String)
     distance_value = Column(Integer)
-    # user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
 
-    # user = relationship('User', backref='flights')
+    user = relationship('User', backref='flights')
 
 
 

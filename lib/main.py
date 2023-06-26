@@ -18,8 +18,7 @@ if __name__ == '__main__':
     Session = sessionmaker(bind=engine)
     session = Session()
 
-# Ask user to input username that associates with that user and their flight info
-    
+# sign user in; if no user exists, create user
     username = input('Enter your username: ')
     find_user = session.query(User).filter(User.name == username).first()
     if find_user is None:
@@ -34,13 +33,14 @@ if __name__ == '__main__':
         user = session.query(User).filter(User.name == username).first()
         current_user = user
 
+# add a new flight to user's database:
     add_flights = input('Do you want to add a flight to your database? Y/N')
         
     if add_flights == 'Yes' or add_flights == 'yes' or add_flights == 'y':
         passengers = input('How many passengers were flying?')
         dep_airport = input('Where were you flying from?')
         des_airport = input('Where were you going?')
-        fetch_flight(passengers, dep_airport, des_airport)
+        fetch_flight(current_user, passengers, dep_airport, des_airport)
 
 
             
