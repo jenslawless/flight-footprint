@@ -10,13 +10,21 @@ from models import *
 Base = declarative_base()   
 engine = create_engine('sqlite:///users_flights.db')
 
+flight_user = Table(
+    'flight_user',
+    Base.metadata,
+    Column('flight_id', ForeignKey('flights.id'), primary_key=True),
+    Column('user_id', ForeignKey('users.id'), primary_key=True),
+    extend_existing=True
+)
+
 class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key = True)
     name = Column(String)
 
-    # flights = relationship('Flight', back_populates='user')
+    flights = relationship('Flight', secondary=flight_user, back_populates='users')
 
 
 class Flight(Base):
@@ -35,7 +43,7 @@ class Flight(Base):
     distance_value = Column(Integer)
     user_id = Column(Integer, ForeignKey('users.id'))
 
-    user = relationship('User', backref='flights')
+    users = relationship('User', secondary=flight_user, back_populates='flights')
 
 
 

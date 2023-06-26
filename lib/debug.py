@@ -15,5 +15,4 @@ if __name__ == '__main__':
     Session = sessionmaker(bind=engine)
     session = Session()
     print('hello')
-
     ipdb.set_trace()
