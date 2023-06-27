@@ -6,7 +6,7 @@ import requests
 from models import *
 from carbon_api import *
 from functions import *
-
+from simple_term_menu import TerminalMenu
 
 
 if __name__ == '__main__':
@@ -29,25 +29,35 @@ if __name__ == '__main__':
             user = create_user(username)
             # session.add(user)
             current_user = user
+        
 
     else: 
-        print("You're logged in. Welcome to your flight footprint!")
         user = session.query(User).filter(User.name == username).first()
         current_user = user
+        print("You're logged in. Welcome to your flight footprint!")
+        print("What would you like to do?")
 
-# add a new flight to user's database:
-    add_flights = input('Do you want to add a flight to your database? Y/N      ')
-        
-    if add_flights == 'Yes' or add_flights == 'yes' or add_flights == 'y':
-        passengers = int(input('How many passengers were flying?    '))
-        dep_airport = input('Where were you flying from?    ')
-        des_airport = input('Where were you going?    ')
-        fetch_flight(session, current_user, passengers, dep_airport, des_airport)
-        print('Your flight was added to your database! What would you like to do now?')
-    else:
-        print('What would you like to do now?')
+        options = ["Add a new flight", "View my database of flights"]
+        option_actions = [
+            lambda: add_flights(session, current_user),
+            lambda: view_database(session, current_user)
+            ]
+        terminal_menu = TerminalMenu(options)
+        menu_entry_index = terminal_menu.show()
+        option_actions[menu_entry_index]()
 
-# Make sure all inputs for airport codes are 'upper' or all are 'lower'
+        print("You're back at the main menu. Now what?")
+
+        # next_options = ["Delete a flight", "View database again", "Add a new flight", "Update an existing flight"]
+        # terminal_menu = [
+        #     pass
+        # ]
+        # terminal_menu = TerminalMenu(next_options)
+        # menu_entry_index = terminal_menu.show()
+        # # option_actions[menu_entry_index]()
+
+
+
 # flow of questions...
 # want there to be an inital menu: add flight to database, view my flights taken, eventually...view graphs?
 # after adding new flight, go back to menu...what would you like to do now? Add another flight...view all flights...
