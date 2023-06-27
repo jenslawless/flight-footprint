@@ -7,6 +7,7 @@ from models import *
 from carbon_api import *
 from functions import *
 from simple_term_menu import TerminalMenu
+from art import *
 
 
 if __name__ == '__main__':
@@ -35,6 +36,7 @@ if __name__ == '__main__':
         user = session.query(User).filter(User.name == username).first()
         current_user = user
         print("You're logged in. Welcome to your flight footprint!")
+        print(art_1)
         print("What would you like to do?")
 
         options = ["Add a new flight", "View my database of flights"]
@@ -48,13 +50,16 @@ if __name__ == '__main__':
 
         print("You're back at the main menu. Now what?")
 
-        # next_options = ["Delete a flight", "View database again", "Add a new flight", "Update an existing flight"]
-        # terminal_menu = [
-        #     pass
-        # ]
-        # terminal_menu = TerminalMenu(next_options)
-        # menu_entry_index = terminal_menu.show()
-        # # option_actions[menu_entry_index]()
+        next_options = ["Delete a flight", "View database again", "Add a new flight", "Update an existing flight"]
+        next_options_actions = [
+            lambda: delete_flights(session, current_user),
+            lambda: view_database(session, current_user),
+            lambda: add_flights(session, current_user),
+            lambda: update_flight(session, current_user)
+        ]
+        terminal_menu = TerminalMenu(next_options)
+        menu_entry_index = terminal_menu.show()
+        next_options_actions[menu_entry_index]()
 
 
 
