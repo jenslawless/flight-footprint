@@ -4,17 +4,15 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from simple_term_menu import TerminalMenu
 import time
+import matplotlib.pyplot as plt
 
-
-engine = create_engine('sqlite:///users_flights.db')
-Session = sessionmaker(bind=engine)
-session = Session()
 
 # create user
-def create_user(name):
-    user = User(name=f"{name}")
+def create_user(session, name):
+    user = User(name=name)
     session.add(user)
     session.commit()
+    return user
 
 # add a new flight to user's database:
 def add_flights(session, current_user):
@@ -23,7 +21,9 @@ def add_flights(session, current_user):
     dep_airport = input('Where were you flying from?    ').upper()
     des_airport = input('Where were you going?    ').upper()
     fetch_flight(session, current_user, passengers, dep_airport, des_airport)
-    print('Your flight was added to your database! What would you like to do now?')
+    print('Your flight was added to your database!')
+    time.sleep(1)
+    display_main_menu(session, current_user)
 
 # view user's info about current flights in their database
 def view_database(session, current_user):
@@ -31,7 +31,8 @@ def view_database(session, current_user):
     print(f"Current profile: {current_user.name}")
     print(f"Total number of flights: {len(current_user.flights)}")
     print(f"Total carbon emissions in kg: {sum(flight.carbon_kg for flight in current_user.flights)}")
-    time.sleep(4)
+    time.sleep(2)
+    display_main_menu(session, current_user)
 
 
 # delete a flight
@@ -60,6 +61,9 @@ def delete_flights(session, current_user):
         print("Flight successfully deleted!")
     else:
         print("Invalid selection")
+    
+    time.sleep(1)
+    display_main_menu(session, current_user)
 
 
 # update a flight
@@ -113,7 +117,7 @@ def update_flight(session, current_user):
                 fetch_flight(session, current_user, selected_flight.passengers, new_dep_airport, selected_flight.des_airport)
 
         # updated destination airport
-        elif selected_item_to_update == "destination airport:":
+        elif selected_item_to_update == "destination airport":
             new_des_airport = input("Enter the new destination airport:   ").upper()
             existing_flight = session.query(Flight).filter(
                 Flight.passengers == selected_flight.passengers,
@@ -128,8 +132,54 @@ def update_flight(session, current_user):
     
     current_user.flights.remove(selected_flight)
     session.commit()
+    time.sleep(1)
+    display_main_menu(session, current_user)
 
 def exit_out(session):
     session.close()
+
+def display_main_menu(session, current_user):
+    print("What would you like to do?")
+
+    options = ["View database of my flights", "Add a new flight", "Delete a flight", "Update an existing flight", "Exit out of Flight Footprint", "Show me a graph"]
+    option_actions = [
+        lambda: view_database(session, current_user),
+        lambda: add_flights(session, current_user),
+        lambda: delete_flights(session, current_user),
+        lambda: update_flight(session, current_user),
+        lambda: exit_out(session),
+        lambda: graph_1(session, current_user)
+        ]
+    terminal_menu = TerminalMenu(options)
+    menu_entry_index = terminal_menu.show()
+    option_actions[menu_entry_index]()
+
+
+def graph_1(session, current_user):
+    user_flights = session.query(Flight).join(Flight.users).filter(User.id == current_user.id).all()
+
+    flight_details = [
+    {'departure_airport': flight.dep_airport, 'destination_airport': flight.des_airport}
+    for flight in user_flights
+    ]
+    passenger_counts = [flight.passengers for flight in user_flights]
+    emissions = [flight.carbon_kg for flight in user_flights]
+
+    fig, ax = plt.subplots()
+    bars = ax.bar(range(len(emissions)), emissions)
+    plt.bar(range(len(emissions)), emissions)
+    plt.xticks(range(len(emissions)), [f"{flight['departure_airport']} to {flight['destination_airport']}" for flight in flight_details])
+    ax.set_ylabel('Carbon Emissions (kg)')
+
+    for i, bar in enumerate(bars):
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width() / 2, height, f"{passenger_counts[i]} passengers", ha='center', va='bottom')
+
+    plt.show()
+   
+
+ 
+
+
 
     

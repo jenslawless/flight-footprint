@@ -63,6 +63,7 @@ def fetch_flight(session, current_user, passengers, dep_airport, des_airport):
         session.commit()
 
 
+
       
 
     

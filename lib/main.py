@@ -26,75 +26,27 @@ if __name__ == '__main__':
     if find_user is None:
         print('You are not yet a registered user. Create new?')
         fetch = input('Yes or No?')
-        if fetch == 'Yes' or fetch == 'yes' or fetch == 'y':
-            user = create_user(username)
-            # session.add(user)
+        if fetch == 'Yes' or fetch == 'yes' or fetch == 'y' or fetch =="Y":
+            user = create_user(session, username)
             current_user = user
-        
 
+# user already exists, continue to main menu
     else: 
         user = session.query(User).filter(User.name == username).first()
         current_user = user
         print("You're logged in. Welcome to your flight footprint!")
         print(art_1)
-        print("What would you like to do?")
-
-        options = ["View database of my flights", "Add a new flight", "Delete a flight", "Update an existing flight", "Exit out of Flight Footprint"]
-        option_actions = [
-            lambda: view_database(session, current_user),
-            lambda: add_flights(session, current_user),
-            lambda: delete_flights(session, current_user),
-            lambda: update_flight(session, current_user),
-            lambda: exit_out(session)
-            ]
-        terminal_menu = TerminalMenu(options)
-        menu_entry_index = terminal_menu.show()
-        option_actions[menu_entry_index]()
-
-        # print("You're back at the main menu. Now what?")
-
-        next_options = ["View database of my flights", "Add a new flight", "Delete a flight", "Update an existing flight", "Exit out of Flight Footprint"]
-        next_options_actions = [
-            lambda: view_database(session, current_user),
-            lambda: add_flights(session, current_user),
-            lambda: delete_flights(session, current_user),
-            lambda: update_flight(session, current_user),
-            lambda: exit_out(session)
-            ]
-        terminal_menu = TerminalMenu(next_options)
-        menu_entry_index = terminal_menu.show()
-        next_options_actions[menu_entry_index]()
-
+    
+    display_main_menu(session, current_user)
+        
 
 
 # flow of questions...
 # want there to be an inital menu: add flight to database, view my flights taken, eventually...view graphs?
 # after adding new flight, go back to menu...what would you like to do now? Add another flight...view all flights...
-# find way to do roundtrip flights too. 
-
-
-
-
-            
-
-        
-
-
-
-
-
-
-
-
-
-
+# find way to do roundtrip flights too.
 # create a new user
 # ask user for input for flights: no. passengers, dep and des airports
-
 # return basic data to them
-
 # ask if they want that data added to their overall file/graphs
-
 # give options to view graphs of how much they have traveled
-
-# 
