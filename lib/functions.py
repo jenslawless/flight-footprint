@@ -178,7 +178,7 @@ def graph_2(session, current_user):
     
      df = pd.DataFrame(total_emissions, columns=['user_id', 'user_name', 'total_emissions'])
      current_user_total = df.loc[df['user_id'] == current_user.id]['total_emissions'].iloc[0] 
-     average_total = df['total_emissions'].mean()
+     average_total = (df['total_emissions'].sum() - current_user_total) / (df.shape[0] - 1)
 
      fig, ax = plt.subplots()
      ax.bar(['Current User', 'Average Total for Other Users'], [current_user_total, average_total])
@@ -228,6 +228,7 @@ def user_database(session, current_user):
     print(df)
     time.sleep(2)
     graphs_menu(session, current_user)
+
 
 
 

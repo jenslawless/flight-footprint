@@ -19,7 +19,8 @@ if __name__ == '__main__':
 
     Session = sessionmaker(bind=engine)
     session = Session()
-
+    # session.query(flight_user).delete()
+    # session.commit()
 # sign user in; if no user exists, create user
     username = input('Enter your username:      ')
     find_user = session.query(User).filter(User.name == username).first()
