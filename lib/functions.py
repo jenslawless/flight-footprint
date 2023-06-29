@@ -26,16 +26,6 @@ def add_flights(session, current_user):
     time.sleep(1)
     display_main_menu(session, current_user)
 
-# view user's info about current flights in their database
-def view_database(session, current_user):
-    print(f"Great, let's view your database of flights!")
-    print(f"Current profile: {current_user.name}")
-    print(f"Total number of flights: {len(current_user.flights)}")
-    print(f"Total carbon emissions in kg: {sum(flight.carbon_kg for flight in current_user.flights)}")
-    time.sleep(2)
-    display_main_menu(session, current_user)
-
-
 # delete a flight
 def delete_flights(session, current_user):
     print("Which flight do you want to delete?")
@@ -142,20 +132,20 @@ def exit_out(session):
 def display_main_menu(session, current_user):
     print("What would you like to do?")
 
-    options = ["View database of my flights", "Add a new flight", "Delete a flight", "Update an existing flight", "Exit out of Flight Footprint", "Show me a graph"]
+    options = ["Add a new flight", "Delete a flight", "Update an existing flight", "Show me a graph", "Exit out of Flight Footprint"]
     option_actions = [
-        lambda: view_database(session, current_user),
         lambda: add_flights(session, current_user),
         lambda: delete_flights(session, current_user),
         lambda: update_flight(session, current_user),
-        lambda: exit_out(session),
-        lambda: graph_2(session, current_user)
+        lambda: graphs_menu(session, current_user),
+        lambda: exit_out(session)
         ]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
     option_actions[menu_entry_index]()
 
 
+# shows bar chart of the user's flight and how much emissions are generated
 def graph_1(session, current_user):
     user_flights = session.query(Flight).join(Flight.users).filter(User.id == current_user.id).all()
 
@@ -176,7 +166,9 @@ def graph_1(session, current_user):
         ax.text(bar.get_x() + bar.get_width() / 2, height, f"{passenger_counts[i]} passengers", ha='center', va='bottom')
 
     plt.show()
+    graphs_menu(session, current_user)
 
+# graph shows the current_users total carbon emissions/kg compared to the average user (average of the totals of all users)
 def graph_2(session, current_user):
      total_emissions = session.query(
         User.id, 
@@ -184,9 +176,7 @@ def graph_2(session, current_user):
         func.sum(Flight.carbon_kg).label('total_emissions')
      ).join(flight_user, User.id == flight_user.c.user_id).join(Flight, Flight.id == flight_user.c.flight_id).group_by(User.id).all()
     
-    #  data = [[user_id, user_name, total_emissions] for user_id, user_name, total_emissions_tuple in total_emissions]
      df = pd.DataFrame(total_emissions, columns=['user_id', 'user_name', 'total_emissions'])
-     print(df)
      current_user_total = df.loc[df['user_id'] == current_user.id]['total_emissions'].iloc[0] 
      average_total = df['total_emissions'].mean()
 
@@ -195,7 +185,49 @@ def graph_2(session, current_user):
      ax.set_ylabel('Total Carbon Emissions (kg)')
 
      plt.show()
- 
+     graphs_menu(session, current_user)
+
+# menu for graphs
+def graphs_menu(session, current_user):
+     print("Which graph would you like to view?")
+
+     options = ["My total emissions compared to average user", "My flights compared to each other", "My database of flights", "Back to main menu",]
+     option_actions = [
+        lambda: graph_2(session, current_user),
+        lambda: graph_1(session, current_user),
+        lambda: user_database(session, current_user),
+        lambda: display_main_menu(session, current_user)
+        ]
+     terminal_menu = TerminalMenu(options)
+     menu_entry_index = terminal_menu.show()
+     option_actions[menu_entry_index]()
+     display_main_menu(session, current_user)
+
+def user_database(session, current_user):
+    user_database = session.query(
+        User.id,
+        Flight.passengers,
+        Flight.dep_airport,
+        Flight.des_airport,
+        Flight.carbon_g,
+        Flight.carbon_lb, 
+        Flight.carbon_kg, 
+        Flight.carbon_mt,
+        Flight.distance_value,
+        Flight.distance_unit
+    ).join(flight_user, User.id == flight_user.c.user_id).join(Flight, Flight.id == flight_user.c.flight_id).filter(User.id == current_user.id).all()
+
+    df = pd.DataFrame(user_database, columns=['user_id', 'no_passengers', 'dep_airport', 'des_airport', 'carbon_g', 'carbon_lb', 'carbon_kg', 'carbon_mt', 'distance_value', 'distance_unit'])
+    df = df.drop('user_id', axis=1)
+    df = df.reset_index(drop=True)
+
+    average_flight = df['carbon_kg'].mean()
+    time.sleep(1)
+    print(f'The average carbon emissions in kg you are generating each flight is: {average_flight}')
+    time.sleep(1)
+    print(df)
+    time.sleep(2)
+    graphs_menu(session, current_user)
 
 
 

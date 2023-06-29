@@ -38,15 +38,3 @@ if __name__ == '__main__':
         print(art_1)
     
     display_main_menu(session, current_user)
-        
-
-
-# flow of questions...
-# want there to be an inital menu: add flight to database, view my flights taken, eventually...view graphs?
-# after adding new flight, go back to menu...what would you like to do now? Add another flight...view all flights...
-# find way to do roundtrip flights too.
-# create a new user
-# ask user for input for flights: no. passengers, dep and des airports
-# return basic data to them
-# ask if they want that data added to their overall file/graphs
-# give options to view graphs of how much they have traveled
