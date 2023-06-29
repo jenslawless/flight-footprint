@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from simple_term_menu import TerminalMenu
 import time
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 # create user
@@ -148,7 +149,7 @@ def display_main_menu(session, current_user):
         lambda: delete_flights(session, current_user),
         lambda: update_flight(session, current_user),
         lambda: exit_out(session),
-        lambda: graph_1(session, current_user)
+        lambda: graph_2(session, current_user)
         ]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
@@ -167,7 +168,6 @@ def graph_1(session, current_user):
 
     fig, ax = plt.subplots()
     bars = ax.bar(range(len(emissions)), emissions)
-    plt.bar(range(len(emissions)), emissions)
     plt.xticks(range(len(emissions)), [f"{flight['departure_airport']} to {flight['destination_airport']}" for flight in flight_details])
     ax.set_ylabel('Carbon Emissions (kg)')
 
@@ -176,6 +176,40 @@ def graph_1(session, current_user):
         ax.text(bar.get_x() + bar.get_width() / 2, height, f"{passenger_counts[i]} passengers", ha='center', va='bottom')
 
     plt.show()
+
+def graph_2(session, current_user):
+     total_emissions = session.query(
+        User.id, 
+        User.name, 
+        func.sum(Flight.carbon_kg).label('total_emissions')
+     ).join(flight_user, User.id == flight_user.c.user_id).join(Flight, Flight.id == flight_user.c.flight_id).group_by(User.id).all()
+    
+    #  data = [[user_id, user_name, total_emissions] for user_id, user_name, total_emissions_tuple in total_emissions]
+     df = pd.DataFrame(total_emissions, columns=['user_id', 'user_name', 'total_emissions'])
+     print(df)
+     current_user_total = df.loc[df['user_id'] == current_user.id]['total_emissions'].iloc[0] 
+     average_total = df['total_emissions'].mean()
+
+     fig, ax = plt.subplots()
+     ax.bar(['Current User', 'Average Total for Other Users'], [current_user_total, average_total])
+     ax.set_ylabel('Total Carbon Emissions (kg)')
+
+     plt.show()
+ 
+
+
+
+ 
+
+
+
+
+    
+
+
+    
+
+    
    
 
  
