@@ -154,12 +154,13 @@ def graph_1(session, current_user):
     for flight in user_flights
     ]
     passenger_counts = [flight.passengers for flight in user_flights]
-    emissions = [flight.carbon_kg for flight in user_flights]
+    emissions = [flight.carbon_kg / flight.passengers for flight in user_flights]
 
     fig, ax = plt.subplots()
     bars = ax.bar(range(len(emissions)), emissions)
     plt.xticks(range(len(emissions)), [f"{flight['departure_airport']} to {flight['destination_airport']}" for flight in flight_details])
     ax.set_ylabel('Carbon Emissions (kg)')
+    ax.set_xlabel('Carbon emissions are per passenger')
 
     for i, bar in enumerate(bars):
         height = bar.get_height()
@@ -222,12 +223,18 @@ def user_database(session, current_user):
     df = df.reset_index(drop=True)
 
     average_flight = df['carbon_kg'].mean()
+    total_kg = df['carbon_kg'].sum()
+    total_flights = df.shape[0]
+    time.sleep(1)
+    print(f"The total number of flights you've taken is: {total_flights} ")
+    print(f"Your total amount of carbon emissions generated in kg is: {total_kg}")
     time.sleep(1)
     print(f'The average carbon emissions in kg you are generating each flight is: {average_flight}')
     time.sleep(1)
     print(df)
     time.sleep(2)
     graphs_menu(session, current_user)
+    
 
 
 
